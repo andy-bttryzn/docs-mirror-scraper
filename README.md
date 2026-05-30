@@ -11,7 +11,7 @@ Built originally for a single vendor's docs portal, generalized here for any sit
 - One `.md` file per page (slugged from the URL path)
 - `INDEX.md` grouped by first path segment
 - `_scrape.log` showing exactly what was fetched, skipped, and why
-- `_highlights.md` (optional) — pages matching your priority regex
+- `_highlights.md` (optional): pages matching your priority regex
 
 ## Install
 
@@ -56,8 +56,8 @@ Patterns are matched case-insensitively against `URL + ' ' + page title`. Anythi
 
 Two ready-to-use priority configs ship in `examples/`:
 
-- `examples/priority-auth.json` — surfaces OAuth / auth / onboarding / quickstart / install pages
-- `examples/priority-api-reference.json` — surfaces API reference / methods / endpoints / schema pages
+- `examples/priority-auth.json`: surfaces OAuth / auth / onboarding / quickstart / install pages
+- `examples/priority-api-reference.json`: surfaces API reference / methods / endpoints / schema pages
 
 Both work against any docs site without modification. Copy and edit to fit your reading priorities.
 
@@ -75,7 +75,7 @@ npm test
 node --test tests/
 ```
 
-18 unit tests on the pure URL / slug / priority helpers (`normalizeUrl`, `isSameHost`, `isAsset`, `slugFromUrl`, `classifyPriority`). HTTP-touching parts of the crawler aren't unit-tested here — they're verified via the example commands in CI.
+18 unit tests on the pure URL / slug / priority helpers (`normalizeUrl`, `isSameHost`, `isAsset`, `slugFromUrl`, `classifyPriority`). HTTP-touching parts of the crawler aren't unit-tested here; they're verified via the example commands in CI.
 
 `cheerio`, `robots-parser`, and `turndown` are lazy-loaded so tests run without `npm install`.
 
