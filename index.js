@@ -25,9 +25,19 @@
 const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
-const cheerio = require('cheerio');
-const robotsParser = require('robots-parser');
-const TurndownService = require('turndown');
+
+// HTTP / parsing deps are lazy-loaded so the pure URL/slug helpers can be
+// required + tested without installing the full dep tree.
+let _cheerio = null, _robotsParser = null, _TurndownService = null;
+function cheerio() { return _cheerio || (_cheerio = require('cheerio')); }
+function robotsParser(...args) {
+  _robotsParser = _robotsParser || require('robots-parser');
+  return _robotsParser(...args);
+}
+function TurndownService(...args) {
+  _TurndownService = _TurndownService || require('turndown');
+  return new _TurndownService(...args);
+}
 
 // ---------- config ----------
 const DEFAULTS = {
@@ -251,7 +261,7 @@ async function main() {
     process.exit(2);
   }
 
-  const turndown = new TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced', bulletListMarker: '-' });
+  const turndown = TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced', bulletListMarker: '-' });
   const queue = [cfg.start];
   const seen = new Set([cfg.start]);
   const pages = [];
@@ -298,7 +308,7 @@ async function main() {
     }
 
     const html = await res.text();
-    const $ = cheerio.load(html);
+    const $ = cheerio().load(html);
     const { title, bodyHtml } = extractTitleAndBody($);
     const markdown = turndown.turndown(bodyHtml || '');
     const priority = classifyPriority(priorityCfg, url, title);
@@ -413,7 +423,17 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-main().catch((e) => {
-  console.error('FATAL:', e);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((e) => {
+    console.error('FATAL:', e);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  normalizeUrl,
+  isSameHost,
+  isAsset,
+  slugFromUrl,
+  classifyPriority,
+};

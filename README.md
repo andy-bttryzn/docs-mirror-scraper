@@ -1,5 +1,7 @@
 # docs-mirror-scraper
 
+![tests](https://github.com/USER/docs-mirror-scraper/actions/workflows/test.yml/badge.svg)
+
 BFS-crawl any documentation site into a local Markdown mirror, so the docs are searchable / greppable / pasteable into your LLM context without webfetch round-trips.
 
 Built originally for a single vendor's docs portal, generalized here for any site whose docs you'd rather read on disk than in your browser.
@@ -64,6 +66,18 @@ Both work against any docs site without modification. Copy and edit to fit your 
 The crawler honors `robots.txt` for the start URL's User-Agent. If `robots.txt` disallows your start URL, the crawl aborts. If `robots.txt` is unreachable, everything is allowed (matches the conservative-default expectation of most static doc hosts).
 
 Default delay is 1 second between requests. Crank it down with `--delay 200` if the docs site is yours; leave it alone otherwise.
+
+## Tests
+
+```bash
+npm test
+# or
+node --test tests/
+```
+
+18 unit tests on the pure URL / slug / priority helpers (`normalizeUrl`, `isSameHost`, `isAsset`, `slugFromUrl`, `classifyPriority`). HTTP-touching parts of the crawler aren't unit-tested here — they're verified via the example commands in CI.
+
+`cheerio`, `robots-parser`, and `turndown` are lazy-loaded so tests run without `npm install`.
 
 ## Not in scope
 
