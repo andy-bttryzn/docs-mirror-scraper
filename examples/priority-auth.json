@@ -1,0 +1,13 @@
+{
+  "label": "Auth + Onboarding",
+  "rationale": "First-read priorities when implementing OAuth + initial onboarding. Other docs are MEDIUM and still indexed.",
+  "high": [
+    "\\boauth\\b",
+    "\\bauthentic",
+    "\\bauthoriz",
+    "\\bonboard",
+    "\\bgetting[-_ ]?started\\b",
+    "\\bquickstart\\b",
+    "\\binstall\\b"
+  ]
+}

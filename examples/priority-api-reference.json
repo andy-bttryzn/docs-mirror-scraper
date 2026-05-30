@@ -1,0 +1,12 @@
+{
+  "label": "API Reference",
+  "rationale": "Surfaces the API reference / methods / endpoints docs first. Tutorials and guides are MEDIUM.",
+  "high": [
+    "\\bapi[-_ ]?reference\\b",
+    "/api/",
+    "/reference/",
+    "\\bmethods?\\b",
+    "\\bendpoints?\\b",
+    "\\bschema\\b"
+  ]
+}

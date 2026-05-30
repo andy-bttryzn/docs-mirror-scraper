@@ -52,6 +52,13 @@ When you only care about a slice of the site, point `--priority-config` at a JSO
 
 Patterns are matched case-insensitively against `URL + ' ' + page title`. Anything that matches gets `[HIGH]` in `INDEX.md` and a dedicated entry in `_highlights.md`.
 
+Two ready-to-use priority configs ship in `examples/`:
+
+- `examples/priority-auth.json` — surfaces OAuth / auth / onboarding / quickstart / install pages
+- `examples/priority-api-reference.json` — surfaces API reference / methods / endpoints / schema pages
+
+Both work against any docs site without modification. Copy and edit to fit your reading priorities.
+
 ## Respect
 
 The crawler honors `robots.txt` for the start URL's User-Agent. If `robots.txt` disallows your start URL, the crawl aborts. If `robots.txt` is unreachable, everything is allowed (matches the conservative-default expectation of most static doc hosts).
