@@ -50,13 +50,22 @@ const DEFAULTS = {
   priorityConfig: null,
 };
 
+function parsePositiveInt(raw, flagName) {
+  const n = parseInt(raw, 10);
+  if (isNaN(n) || n <= 0) {
+    console.error(`Error: ${flagName} requires a positive integer (got ${JSON.stringify(raw)})`);
+    process.exit(1);
+  }
+  return n;
+}
+
 function parseArgs() {
   const cfg = { ...DEFAULTS };
   const argv = process.argv.slice(2);
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--max') cfg.maxPages = parseInt(argv[++i], 10);
-    else if (a === '--delay') cfg.delayMs = parseInt(argv[++i], 10);
+    if (a === '--max') cfg.maxPages = parsePositiveInt(argv[++i], '--max');
+    else if (a === '--delay') cfg.delayMs = parsePositiveInt(argv[++i], '--delay');
     else if (a === '--start') cfg.start = argv[++i];
     else if (a === '--out') cfg.outDir = path.resolve(argv[++i]);
     else if (a === '--user-agent') cfg.userAgent = argv[++i];
@@ -86,8 +95,26 @@ function loadPriorityConfig(cfgPath) {
     console.error(`Priority config file not found: ${cfgPath}`);
     process.exit(1);
   }
-  const raw = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
-  const high = (raw.high || []).map(p => new RegExp(p, 'i'));
+  let raw;
+  try {
+    raw = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+  } catch (e) {
+    console.error(`Priority config is not valid JSON (${cfgPath}): ${e.message}`);
+    process.exit(1);
+  }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    console.error(`Priority config must be a JSON object (${cfgPath})`);
+    process.exit(1);
+  }
+  const high = [];
+  for (const p of (raw.high || [])) {
+    try {
+      high.push(new RegExp(p, 'i'));
+    } catch (e) {
+      console.error(`Invalid regex in priority config "${p}": ${e.message}`);
+      process.exit(1);
+    }
+  }
   return {
     high,
     label: raw.label || 'Highlights',
