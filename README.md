@@ -75,7 +75,7 @@ npm test
 node --test tests/
 ```
 
-18 unit tests on the pure URL / slug / priority helpers (`normalizeUrl`, `isSameHost`, `isAsset`, `slugFromUrl`, `classifyPriority`). HTTP-touching parts of the crawler aren't unit-tested here; they're verified via the example commands in CI.
+25 unit tests on the pure URL / slug / priority / config helpers (`normalizeUrl`, `isSameHost`, `isAsset`, `slugFromUrl`, `classifyPriority`, `loadPriorityConfig`). HTTP-touching parts of the crawler aren't unit-tested here; they're verified via the example commands in CI.
 
 `cheerio`, `robots-parser`, and `turndown` are lazy-loaded so tests run without `npm install`.
 

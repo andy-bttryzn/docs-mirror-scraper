@@ -6,12 +6,16 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
 const {
   normalizeUrl,
   isSameHost,
   isAsset,
   slugFromUrl,
   classifyPriority,
+  loadPriorityConfig,
 } = require('../index.js');
 
 // ---------- normalizeUrl ----------
@@ -109,4 +113,59 @@ test('classifyPriority: title match returns HIGH', () => {
 test('classifyPriority: no match returns MEDIUM', () => {
   const cfg = { high: [/oauth/i], label: 'L', rationale: '' };
   assert.equal(classifyPriority(cfg, 'https://x.com/billing', 'Billing FAQ'), 'MEDIUM');
+});
+
+// ---------- loadPriorityConfig ----------
+
+test('loadPriorityConfig: null cfgPath returns null', () => {
+  assert.equal(loadPriorityConfig(null), null);
+  assert.equal(loadPriorityConfig(undefined), null);
+});
+
+test('loadPriorityConfig: missing file throws', () => {
+  assert.throws(() => loadPriorityConfig('/no/such/file.json'), /file not found/);
+});
+
+test('loadPriorityConfig: malformed JSON throws', () => {
+  const tmp = path.join(os.tmpdir(), `dms-bad-${Date.now()}.json`);
+  fs.writeFileSync(tmp, 'not json');
+  assert.throws(() => loadPriorityConfig(tmp), /not valid JSON/);
+  fs.unlinkSync(tmp);
+});
+
+test('loadPriorityConfig: array instead of object throws', () => {
+  const tmp = path.join(os.tmpdir(), `dms-arr-${Date.now()}.json`);
+  fs.writeFileSync(tmp, '[]');
+  assert.throws(() => loadPriorityConfig(tmp), /must be a JSON object/);
+  fs.unlinkSync(tmp);
+});
+
+test('loadPriorityConfig: invalid regex throws with pattern name', () => {
+  const tmp = path.join(os.tmpdir(), `dms-rx-${Date.now()}.json`);
+  fs.writeFileSync(tmp, JSON.stringify({ high: ['bad((regex'] }));
+  assert.throws(() => loadPriorityConfig(tmp), /Invalid regex.*bad\(\(regex/);
+  fs.unlinkSync(tmp);
+});
+
+test('loadPriorityConfig: valid config parses correctly', () => {
+  const tmp = path.join(os.tmpdir(), `dms-ok-${Date.now()}.json`);
+  fs.writeFileSync(tmp, JSON.stringify({
+    label: 'Test',
+    rationale: 'why',
+    high: ['oauth', 'auth'],
+  }));
+  const cfg = loadPriorityConfig(tmp);
+  assert.equal(cfg.label, 'Test');
+  assert.equal(cfg.rationale, 'why');
+  assert.equal(cfg.high.length, 2);
+  assert.ok(cfg.high[0].test('OAUTH-PAGE'));
+  fs.unlinkSync(tmp);
+});
+
+test('loadPriorityConfig: missing label defaults to Highlights', () => {
+  const tmp = path.join(os.tmpdir(), `dms-deflt-${Date.now()}.json`);
+  fs.writeFileSync(tmp, JSON.stringify({ high: ['foo'] }));
+  const cfg = loadPriorityConfig(tmp);
+  assert.equal(cfg.label, 'Highlights');
+  fs.unlinkSync(tmp);
 });

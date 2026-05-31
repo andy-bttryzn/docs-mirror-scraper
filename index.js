@@ -92,27 +92,23 @@ function parseArgs() {
 function loadPriorityConfig(cfgPath) {
   if (!cfgPath) return null;
   if (!fs.existsSync(cfgPath)) {
-    console.error(`Priority config file not found: ${cfgPath}`);
-    process.exit(1);
+    throw new Error(`Priority config file not found: ${cfgPath}`);
   }
   let raw;
   try {
     raw = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
   } catch (e) {
-    console.error(`Priority config is not valid JSON (${cfgPath}): ${e.message}`);
-    process.exit(1);
+    throw new Error(`Priority config is not valid JSON (${cfgPath}): ${e.message}`);
   }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    console.error(`Priority config must be a JSON object (${cfgPath})`);
-    process.exit(1);
+    throw new Error(`Priority config must be a JSON object (${cfgPath})`);
   }
   const high = [];
   for (const p of (raw.high || [])) {
     try {
       high.push(new RegExp(p, 'i'));
     } catch (e) {
-      console.error(`Invalid regex in priority config "${p}": ${e.message}`);
-      process.exit(1);
+      throw new Error(`Invalid regex in priority config "${p}": ${e.message}`);
     }
   }
   return {
@@ -452,7 +448,13 @@ function sleep(ms) {
 
 if (require.main === module) {
   main().catch((e) => {
-    console.error('FATAL:', e);
+    // Print clean message for known errors (thrown with our own message).
+    // For unexpected errors, include the stack via err.stack.
+    if (e && typeof e.message === 'string' && e.message) {
+      console.error(`Error: ${e.message}`);
+    } else {
+      console.error('FATAL:', e);
+    }
     process.exit(1);
   });
 }
@@ -463,4 +465,5 @@ module.exports = {
   isAsset,
   slugFromUrl,
   classifyPriority,
+  loadPriorityConfig,
 };
