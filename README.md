@@ -1,6 +1,6 @@
 # docs-mirror-scraper
 
-![tests](https://github.com/USER/docs-mirror-scraper/actions/workflows/test.yml/badge.svg)
+![tests](https://github.com/andy-bttryzn/docs-mirror-scraper/actions/workflows/test.yml/badge.svg)
 
 BFS-crawl any documentation site into a local Markdown mirror, so the docs are searchable / greppable / pasteable into your LLM context without webfetch round-trips.
 
